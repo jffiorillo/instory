@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:stories/bloc/block_provider.dart';
 import 'package:stories/bloc/stories_bloc.dart';
 import 'package:stories/models.dart';
-import 'package:stories/utils/api.dart';
 
 class StoriesArchiveTray extends StatelessWidget {
-  List<Tray> trays;
+  final List<Tray> trays;
 
   StoriesArchiveTray(this.trays);
 
@@ -27,7 +26,8 @@ class StoriesArchiveTray extends StatelessWidget {
                     ),
                 itemCount: this.trays.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return new TrayItem(index, this.trays[index], snapshot.data, storiesBloc);
+                  return new TrayItem(
+                      index, this.trays[index], snapshot.data, storiesBloc);
                 }),
           );
         });
@@ -35,10 +35,10 @@ class StoriesArchiveTray extends StatelessWidget {
 }
 
 class TrayItem extends StatefulWidget {
-  int index;
-  Tray tray;
-  String selectedId;
-  StoriesBloc bloc;
+  final int index;
+  final Tray tray;
+  final String selectedId;
+  final StoriesBloc bloc;
 
   TrayItem(this.index, this.tray, this.selectedId, this.bloc);
 
@@ -46,13 +46,19 @@ class TrayItem extends StatefulWidget {
   _TrayItemState createState() => _TrayItemState();
 }
 
-class _TrayItemState extends State<TrayItem> {
+abstract class TrayItemView {
+  void setLoadingState(bool isLoading);
+}
+
+class _TrayItemState extends State<TrayItem> implements TrayItemView {
   bool loading = false;
+
   @override
   Widget build(BuildContext context) {
+    final storiesBloc = BlocProvider.of<StoriesBloc>(context);
     return InkWell(
       onTap: () {
-        select(context);
+        storiesBloc.selectTrayView(widget.tray.id, this);
       },
       child: Column(children: <Widget>[
         Container(
@@ -61,14 +67,19 @@ class _TrayItemState extends State<TrayItem> {
           margin: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
           decoration: BoxDecoration(
               border: Border.all(
-                  color: widget.tray.id == widget.selectedId ? Colors.greenAccent[100] : Colors.grey[100],
+                  color: widget.tray.id == widget.selectedId
+                      ? Colors.greenAccent[100]
+                      : Colors.grey[100],
                   width: widget.tray.id == widget.selectedId ? 4 : 0),
-              image: DecorationImage(image: NetworkImage(widget.tray.coverMedia.croppedImageVersion.url)),
+              image: DecorationImage(
+                  image: NetworkImage(
+                      widget.tray.coverMedia.croppedImageVersion.url)),
               shape: BoxShape.circle),
           child: loading
               ? CircularProgressIndicator(
                   strokeWidth: 4,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.greenAccent[100]),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(Colors.greenAccent[100]),
                 )
               : Container(),
         ),
@@ -80,22 +91,10 @@ class _TrayItemState extends State<TrayItem> {
     );
   }
 
-  void select(BuildContext context) async {
-    final storiesBloc = BlocProvider.of<StoriesBloc>(context);
-
-    if (widget.tray.id == "__TODAY__") {
-      storiesBloc.addStories(storiesBloc.todaysStories);
-      storiesBloc.selectTray(widget.tray.id);
-      return;
-    }
+  @override
+  void setLoadingState(bool isLoading) {
     setState(() {
-      loading = true;
-    });
-    var highlight = await Api.getSingleHighLights(widget.tray.id);
-    storiesBloc.addStories(highlight.highLight.items);
-    storiesBloc.selectTray(widget.tray.id);
-    setState(() {
-      loading = false;
+      loading = isLoading;
     });
   }
 }

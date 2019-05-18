@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class ApiResponse {
   bool canReply;
   int id;
@@ -12,7 +10,13 @@ class ApiResponse {
   int latestReelMedia;
   String status;
 
-  ApiResponse({this.canReply, this.canReshare, this.reelType, this.user, this.items, this.status});
+  ApiResponse(
+      {this.canReply,
+      this.canReshare,
+      this.reelType,
+      this.user,
+      this.items,
+      this.status});
 
   ApiResponse.fromJson(Map<String, dynamic> json) {
     canReply = json['can_reply'];
@@ -88,7 +92,9 @@ class HighLight {
     canReply = jsonObj['can_reply'];
     canReshare = jsonObj['can_reshare'];
     reelType = jsonObj['reel_type'];
-    coverMedia = jsonObj['cover_media'] != null ? new CoverMedia.fromJson(jsonObj['cover_media']) : null;
+    coverMedia = jsonObj['cover_media'] != null
+        ? new CoverMedia.fromJson(jsonObj['cover_media'])
+        : null;
     user = jsonObj['user'] != null ? new User.fromJson(jsonObj['user']) : null;
     if (jsonObj['items'] != null) {
       items = new List<Items>();
@@ -137,7 +143,9 @@ class Items {
   });
 
   Items.fromJson(Map<String, dynamic> json) {
-    imageVersions2 = json['image_versions2'] != null ? new ImageVersions2.fromJson(json['image_versions2']) : null;
+    imageVersions2 = json['image_versions2'] != null
+        ? new ImageVersions2.fromJson(json['image_versions2'])
+        : null;
 
     if (json['video_versions'] != null) {
       videoVersions = new List<VideoVersions>();
@@ -412,7 +420,9 @@ class Tray {
     seen = json['seen'];
     canReply = json['can_reply'];
     reelType = json['reel_type'];
-    coverMedia = json['cover_media'] != null ? new CoverMedia.fromJson(json['cover_media']) : null;
+    coverMedia = json['cover_media'] != null
+        ? new CoverMedia.fromJson(json['cover_media'])
+        : null;
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     title = json['title'];
   }
@@ -446,8 +456,9 @@ class CoverMedia {
   CoverMedia({this.croppedImageVersion, this.mediaId});
 
   CoverMedia.fromJson(Map<String, dynamic> json) {
-    croppedImageVersion =
-        json['cropped_image_version'] != null ? new CroppedImageVersion.fromJson(json['cropped_image_version']) : null;
+    croppedImageVersion = json['cropped_image_version'] != null
+        ? new CroppedImageVersion.fromJson(json['cropped_image_version'])
+        : null;
     mediaId = json['media_id'];
   }
 

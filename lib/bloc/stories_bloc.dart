@@ -1,26 +1,35 @@
 import 'dart:async';
 
-import 'package:stories/utils/api.dart';
 import 'package:stories/bloc/block_provider.dart';
 import 'package:stories/models.dart';
+import 'package:stories/screens/widgets/stories_tray.dart';
+import 'package:stories/utils/api.dart';
 
 class StoriesBloc extends BlocBase {
   List<Items> _todaysStories = [];
-  StreamController<List<Tray>> _storiesTrayStream = new StreamController<List<Tray>>();
+  StreamController<List<Tray>> _storiesTrayStream =
+      new StreamController<List<Tray>>();
   StreamController<int> _selectedStory = new StreamController<int>();
-  StreamController<ApiResponse> _profileResponse = new StreamController<ApiResponse>();
+  StreamController<ApiResponse> _profileResponse =
+      new StreamController<ApiResponse>();
   StreamController<String> _selectedTray = new StreamController<String>();
   StreamController<String> _loadingHighLight = new StreamController<String>();
 
-  StreamController<List<Items>> _storiesStream = new StreamController<List<Items>>();
+  StreamController<List<Items>> _storiesStream =
+      new StreamController<List<Items>>();
 
   Stream<List<Tray>> get storiesArchive => _storiesTrayStream.stream;
 
   Stream<List<Items>> get stories => _storiesStream.stream;
+
   Stream<String> get selectedTray => _selectedTray.stream;
+
   Stream<int> get selectedStory => _selectedStory.stream;
+
   Stream<ApiResponse> get apiResponse => _profileResponse.stream;
+
   Stream<String> get loadingHighLight => _loadingHighLight.stream;
+
   List<Items> get todaysStories => _todaysStories;
 
   StoriesBloc(ApiResponse profile, HighLightsResponse response) {
@@ -28,13 +37,15 @@ class StoriesBloc extends BlocBase {
     items.add(new Tray(
         title: "Today",
         id: "__TODAY__",
-        coverMedia: new CoverMedia(croppedImageVersion: new CroppedImageVersion(url: profile.user.profilePicUrl))));
+        coverMedia: new CoverMedia(
+            croppedImageVersion:
+                new CroppedImageVersion(url: profile.user.profilePicUrl))));
     items.addAll(response.tray);
     _selectedTray.sink.add("__TODAY__");
     _loadingHighLight.sink.add("_NONE_");
     _profileResponse.sink.add(profile);
     _storiesTrayStream.sink.add(items);
-    _storiesStream.sink.add(profile.items);
+    _addStories(profile.items);
 
     //storing for tray clicks
     _todaysStories.addAll(profile.items);
@@ -50,21 +61,28 @@ class StoriesBloc extends BlocBase {
     _profileResponse.close();
   }
 
-  void selectTray(String index) {
+  void _selectTray(String index) {
     this._selectedTray.sink.add(index);
-    print(index);
-    if (index == "__TODAY__") {
-      _storiesStream.sink.add(_todaysStories);
-      return;
+  }
+
+  Future selectTrayView(String trayIndex, TrayItemView view) async {
+    if (trayIndex == "__TODAY__") {
+      _addStories(todaysStories);
+      _selectTray(trayIndex);
+    } else {
+      view.setLoadingState(true);
+      var highlight = await Api.getSingleHighLights(trayIndex);
+      _addStories(highlight.highLight.items);
+      _selectTray(trayIndex);
+      view.setLoadingState(false);
     }
-//    this.getHighLight(index);
   }
 
   void selectStory(int index) {
     this._selectedStory.sink.add(index);
   }
 
-  void addStories(List<Items> items) {
+  void _addStories(List<Items> items) {
     _storiesStream.sink.add(items);
   }
 

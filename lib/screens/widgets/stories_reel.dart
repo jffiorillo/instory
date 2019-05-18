@@ -3,9 +3,8 @@ import 'package:stories/models.dart';
 import 'package:stories/screens/story_details_pager.dart';
 
 class StoriesReel extends StatelessWidget {
-  List<Items> stories;
-
-  double height;
+  final List<Items> stories;
+  final double height;
 
   StoriesReel(this.stories, this.height);
 
@@ -18,17 +17,16 @@ class StoriesReel extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           itemCount: this.stories.length,
           itemBuilder: (BuildContext context, int index) {
-            return new _StoriesReel(index, stories,this.height);
+            return new _StoriesReel(index, stories, this.height);
           }),
     );
   }
 }
 
 class _StoriesReel extends StatelessWidget {
-  int story;
-  List<Items> stories;
-
-  double height;
+  final int story;
+  final List<Items> stories;
+  final double height;
 
   _StoriesReel(this.story, this.stories, this.height);
 
@@ -38,12 +36,13 @@ class _StoriesReel extends StatelessWidget {
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(left: 4,right: 4,top: 16),
+          padding: const EdgeInsets.only(left: 4, right: 4, top: 16),
           child: InkWell(
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => StoryDetails(story, this.stories)),
+                MaterialPageRoute(
+                    builder: (context) => StoryDetails(story, this.stories)),
               );
             },
             highlightColor: Colors.grey[300],
@@ -56,15 +55,14 @@ class _StoriesReel extends StatelessWidget {
                 transitionOnUserGestures: true,
                 tag: item.id,
                 child: new Container(
-                  width: MediaQuery.of(context).size.width/2,
-                  height: this.height > 430 ? 430 : this.height ,
+                  width: MediaQuery.of(context).size.width / 2,
+                  height: this.height > 430 ? 430 : this.height,
                   decoration: new BoxDecoration(
                       image: new DecorationImage(
                     fit: BoxFit.cover,
                     alignment: FractionalOffset.center,
-                    image: new NetworkImage(item.imageVersions2.candidates[5].url
-
-                     ),
+                    image:
+                        new NetworkImage(item.imageVersions2.candidates[5].url),
                   )),
                 ),
               ),
@@ -74,6 +72,4 @@ class _StoriesReel extends StatelessWidget {
       ],
     );
   }
-
-  void _onTapItem() {}
 }

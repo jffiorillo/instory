@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:stories/models.dart';
 
 class UserProfile extends StatelessWidget {
-  ApiResponse profile;
+  final ApiResponse profile;
 
   UserProfile(this.profile);
 

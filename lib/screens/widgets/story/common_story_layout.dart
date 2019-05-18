@@ -1,35 +1,37 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:stories/models.dart';
 import 'package:stories/screens/widgets/story/image_story.dart';
 import 'package:stories/screens/widgets/story/video_story.dart';
 import 'package:stories/utils/colors.dart';
-import 'package:stories/models.dart';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class Story extends StatefulWidget {
-  Items story;
+  final Items story;
   final int selectedItem;
-  int index;
+  final int index;
 
   Story(this.story, this.index, this.selectedItem);
 
   @override
-  State<StatefulWidget> createState() => _Story(this.story, this.index, this.selectedItem);
+  State<StatefulWidget> createState() =>
+      _Story(this.story, this.index, this.selectedItem);
 }
 
 class _Story extends State<Story> {
-  Items story;
+  final Items story;
   final int selectedItem;
-  int index;
+  final int index;
   double progress = -1;
   bool showDownloadProgress = false;
 
   _Story(this.story, this.index, this.selectedItem);
+
   static const platform = const MethodChannel('stories');
 
   final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
@@ -50,17 +52,15 @@ class _Story extends State<Story> {
             },
             backgroundColor: Colors.grey[100],
             child: showDownloadProgress
-                ? CircularProgressIndicator(value: progress, valueColor: AlwaysStoppedAnimation<Color>(instaRed))
+                ? CircularProgressIndicator(
+                    value: progress,
+                    valueColor: AlwaysStoppedAnimation<Color>(instaRed))
                 : Icon(
                     Icons.file_download,
                     color: Colors.grey[800],
                   )),
         body: Stack(fit: StackFit.expand, children: <Widget>[
-          _getStoryItem(),
-          Container(
-            alignment: FractionalOffset.bottomCenter,
-            margin: EdgeInsets.only(bottom: 48),
-          )
+          _getStoryItem()
         ]),
       ),
     );
@@ -85,13 +85,15 @@ class _Story extends State<Story> {
     if (Platform.isIOS) {
       initDownloadIOS();
     }
-    PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.storage);
+    PermissionStatus permission = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.storage);
 
     if (permission == PermissionStatus.granted) {
       initDownload();
     } else {
       Map<PermissionGroup, PermissionStatus> storageRequest =
-          await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+          await PermissionHandler()
+              .requestPermissions([PermissionGroup.storage]);
       if (storageRequest[PermissionGroup.storage] == PermissionStatus.granted) {
         initDownload();
       }
@@ -116,7 +118,8 @@ class _Story extends State<Story> {
       setState(() {
         showDownloadProgress = true;
       });
-      await Dio().download(url, "${storage.path}/stories/$filename", // Listen the download progress.
+      await Dio().download(url, "${storage.path}/stories/$filename",
+          // Listen the download progress.
           onReceiveProgress: (received, total) {
         print((received / total * 100) / 100);
         setState(() {
@@ -153,6 +156,7 @@ class _Story extends State<Story> {
       url = story.videoVersions.first.url;
       filename = "${story.id}.mp4";
     }
+    print("Url $url");
     try {
       var storage = await getExternalStorageDirectory();
 
@@ -160,7 +164,8 @@ class _Story extends State<Story> {
       setState(() {
         showDownloadProgress = true;
       });
-      await Dio().download(url, "${storage.path}/Download/$filename", // Listen the download progress.
+      await Dio().download(url, "${storage.path}/Download/$filename",
+          // Listen the download progress.
           onReceiveProgress: (received, total) {
         print((received / total * 100) / 100);
         setState(() {
@@ -176,7 +181,7 @@ class _Story extends State<Story> {
         backgroundColor: Colors.greenAccent[700],
       );
       _scaffoldkey.currentState.showSnackBar(snackBar);
-      platform.invokeMethod("Scan",filename);
+      platform.invokeMethod("Scan", filename);
     } catch (e) {
       print(e);
       final snackBar = SnackBar(

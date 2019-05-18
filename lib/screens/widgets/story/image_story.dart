@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:stories/models.dart';
 
 class ImageStory extends StatelessWidget {
-  int index = 0;
+  final int index;
 
   final int selectedItem;
   final Items story;

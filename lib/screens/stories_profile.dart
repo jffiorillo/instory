@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:stories/bloc/block_provider.dart';
 import 'package:stories/bloc/stories_bloc.dart';
-import 'package:stories/utils/colors.dart';
 import 'package:stories/models.dart';
 import 'package:stories/screens/widgets/stories_reel.dart';
 import 'package:stories/screens/widgets/stories_tray.dart';
@@ -18,7 +17,7 @@ import 'package:stories/screens/widgets/user_profile_widget.dart';
 //}
 
 class StoriesProfile extends StatelessWidget {
-  ApiResponse profile;
+  final ApiResponse profile;
 
   StoriesProfile(this.profile);
 
@@ -61,25 +60,32 @@ class StoriesProfile extends StatelessWidget {
                               height: topSection,
                               decoration: new BoxDecoration(
                                 image: new DecorationImage(
-                                  image: new NetworkImage(profile.user.profilePicUrl),
+                                  image: new NetworkImage(
+                                      profile.user.profilePicUrl),
                                   fit: BoxFit.fill,
                                 ),
                               ),
                               child: new BackdropFilter(
-                                filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                                filter: new ImageFilter.blur(
+                                    sigmaX: 10.0, sigmaY: 10.0),
                                 child: new Container(
-                                  decoration: new BoxDecoration(color: Colors.white.withOpacity(0.0)),
+                                  decoration: new BoxDecoration(
+                                      color: Colors.white.withOpacity(0.0)),
                                 ),
                               ),
                             ),
                             Container(
                               decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius:
-                                      BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32))),
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(32),
+                                      topRight: Radius.circular(32))),
                               height: 120,
                             ),
-                            Container(child: Hero(tag: profile.id, child: UserProfile(profile))),
+                            Container(
+                                child: Hero(
+                                    tag: profile.id,
+                                    child: UserProfile(profile))),
                           ],
                         ),
                       ],
@@ -90,7 +96,8 @@ class StoriesProfile extends StatelessWidget {
                   child: StreamBuilder(
                       initialData: List<Tray>(),
                       stream: storiesBloc.storiesArchive,
-                      builder: (BuildContext context, AsyncSnapshot<List<Tray>> snap) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<Tray>> snap) {
                         return Container(child: StoriesArchiveTray(snap.data));
                       })),
               Container(
@@ -98,11 +105,14 @@ class StoriesProfile extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 decoration: BoxDecoration(
                     color: Colors.grey[200],
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(28),
+                        topRight: Radius.circular(28))),
                 child: StreamBuilder(
                     initialData: List<Items>(),
                     stream: storiesBloc.stories,
-                    builder: (BuildContext context, AsyncSnapshot<List<Items>> snap) {
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Items>> snap) {
                       return Container(
                           margin: EdgeInsets.symmetric(horizontal: 2),
                           child: StoriesReel(snap.data, storySection - 40));
