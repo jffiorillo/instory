@@ -59,9 +59,7 @@ class _Story extends State<Story> {
                     Icons.file_download,
                     color: Colors.grey[800],
                   )),
-        body: Stack(fit: StackFit.expand, children: <Widget>[
-          _getStoryItem()
-        ]),
+        body: _getStoryItem(),
       ),
     );
   }

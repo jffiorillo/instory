@@ -17,19 +17,24 @@ class ImageStory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Hero(
-        tag: index == selectedItem ? story.id : "",
-        child: GestureDetector(
+      tag: index == selectedItem ? story.id : "",
+      child: GestureDetector(
           onVerticalDragEnd: (DragEndDetails dwon) {
             if (dwon.primaryVelocity > 800) {
               Navigator.pop(context);
             }
           },
-          child: FadeInImage(
-            fit: BoxFit.fill,
-            fadeInDuration:Duration(milliseconds: 100),
-              placeholder: NetworkImage(story.imageVersions2.candidates[5].url),
-            image: NetworkImage(story.imageVersions2.candidates[2].url)),
-          ),
-        );
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              FadeInImage(
+                  fit: BoxFit.fill,
+                  fadeInDuration: Duration(milliseconds: 100),
+                  placeholder:
+                      NetworkImage(story.imageVersions2.candidates[5].url),
+                  image: NetworkImage(story.imageVersions2.candidates[2].url)),
+            ],
+          )),
+    );
   }
 }

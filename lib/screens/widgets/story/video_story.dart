@@ -93,57 +93,24 @@ class _VideoStory extends State<VideoStory> {
             onTapUp: (TapUpDetails details) {
               _playVideo();
             },
-            child: _controller.value.initialized
-                ? Stack(
-                    fit: StackFit.expand,
-                    children: <Widget>[
-                      AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
-                        child: VideoPlayer(_controller),
-                      ),
-//                        SizedBox(
-////                          width: 200.0,
-//                          height: 6.0,
-////                          constraints:
-////                              BoxConstraints(maxHeight: 10.0, maxWidth: 200),
-//
-////                          child: Text(
-////                            '${(_controller.value.position.inMilliseconds) / _controller.value.duration.inMilliseconds}',
-////                            style: TextStyle(
-////                                color: Colors.redAccent, fontSize: 30.0),
-////                          ),
-//                          child: LinearProgressIndicator(
-//                              value: _controller.value.position.inMilliseconds /
-//                                  _controller.value.duration.inMilliseconds),
-//                        ),
-//                        Text(
-//                          '${(_controller.value.position.inMilliseconds) / _controller.value.duration.inMilliseconds}',
-//                          style: TextStyle(
-//                              color: Colors.redAccent, fontSize: 30.0),
-//                        ),
-//                      Text(
-//                        '${_controller.value}',
-//                        style: TextStyle(color: Colors.black, fontSize: 30.0),
-//                      ),
-//                      Text(
-//                        '${_controller.value.initialized && !_controller.value.isPlaying}',
-//                        style: TextStyle(color: Colors.red, fontSize: 30.0),
-//                      ),
-                    ],
-                  )
-                : Container(
-                    child: Stack(
-                    fit: StackFit.expand,
-                    children: <Widget>[
-                      FadeInImage(
-                          fit: BoxFit.cover,
-                          fadeInDuration: Duration(milliseconds: 100),
-                          placeholder: NetworkImage(
-                              story.imageVersions2.candidates[5].url),
-                          image: NetworkImage(
-                              story.imageVersions2.candidates[2].url)),
-                      Center(child: CircularProgressIndicator())
-                    ],
-                  ))));
+            child: Stack(
+                fit: StackFit.expand,
+                children: _controller.value.initialized
+                    ? [
+                        AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        )
+                      ]
+                    : [
+                        FadeInImage(
+                            fit: BoxFit.cover,
+                            fadeInDuration: Duration(milliseconds: 100),
+                            placeholder: NetworkImage(
+                                story.imageVersions2.candidates[5].url),
+                            image: NetworkImage(
+                                story.imageVersions2.candidates[2].url)),
+                        Center(child: CircularProgressIndicator())
+                      ])));
   }
 }

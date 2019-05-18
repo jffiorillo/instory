@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stories/models.dart';
 import 'package:stories/screens/widgets/story/common_story_layout.dart';
+import 'package:stories/screens/widgets/story_progress_indicator.dart';
 
 class StoryDetails extends StatefulWidget {
   final int selectedItem;
@@ -10,7 +11,7 @@ class StoryDetails extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new _StoryDetails(selectedItem, trays);
+    return _StoryDetails(selectedItem, trays);
   }
 }
 
@@ -28,7 +29,7 @@ class _StoryDetails extends State<StoryDetails> {
   @override
   void initState() {
     super.initState();
-    _pageController = new PageController(
+    _pageController = PageController(
         initialPage: selectedItem, keepPage: true, viewportFraction: 1);
   }
 
@@ -41,52 +42,33 @@ class _StoryDetails extends State<StoryDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-//        Row(
-//        children: <Widget>[
-//          Container(
-//            padding: EdgeInsets.all(100),
-//              child: SizedBox(
-//            height: 6,
-////                child: ListView.separated(
-////                    scrollDirection: Axis.horizontal,
-////                    physics: const NeverScrollableScrollPhysics(),
-////                    separatorBuilder: (context, index) => Divider(
-////                      indent: 1,
-////                      color: Colors.black,
-////                    ),
-////                    itemCount: items.length,
-////                    itemBuilder: (BuildContext context, int index) {
-////                      return LinearProgressIndicator(
-////                        value: index < selectedItem
-////                            ? 1
-////                            : index == selectedItem ? 0.5 : 0,
-////                      );
-////                    }),
-//            child: DotsIndicator(
-//              controller: _pageController,
-//              itemCount: items.length,
-//              onPageSelected: (int page) {
-//                _pageController.animateToPage(
-//                  page,
-//                  duration: _kDuration,
-//                  curve: _kCurve,
-//                );
-//              },
-//            ),
-//          )),
-          PageView.builder(
+        body: SafeArea(
+            child: Stack(children: [
+      PageView.builder(
         itemBuilder: _pageBuilder,
         physics: BouncingScrollPhysics(),
         pageSnapping: true,
         onPageChanged: _onPageChange,
         controller: _pageController,
         itemCount: items.length,
-      )
-//        ],
-//      )
-      ,
-    );
+      ),
+      Positioned(
+        top: 0.0,
+        left: 0.0,
+        child: StoryProgressIndicator(
+          controller: _pageController,
+          itemCount: items.length,
+          onPageSelected: (int page) {
+            _pageController.animateToPage(
+              page,
+              duration: _kDuration,
+              curve: _kCurve,
+            );
+          },
+          selectedItem: this.selectedItem,
+        ),
+      ),
+    ])));
   }
 
   Widget _pageBuilder(BuildContext context, int index) {
