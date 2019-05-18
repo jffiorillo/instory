@@ -11,7 +11,7 @@ class StoryProgressIndicator extends AnimatedWidget {
     this.color: Colors.white,
   }) : super(listenable: controller);
 
-  /// The PageController that this DotsIndicator is representing.
+  /// The PageController that this StoryProgressIndicator is representing.
   final PageController controller;
 
   /// The number of items managed by the PageController
