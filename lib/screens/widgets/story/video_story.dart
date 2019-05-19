@@ -44,7 +44,6 @@ class _VideoStory extends State<VideoStory> {
   void initState() {
     listener = () {
       setState(() {
-        _controller = _controller;
         var update = _controller.value.position.inMilliseconds /
             _controller.value.duration.inMilliseconds;
         print("pos ${_controller.value.position.inMilliseconds} dur "
@@ -66,7 +65,7 @@ class _VideoStory extends State<VideoStory> {
   }
 
   bool hasFinishVideo() =>
-      hasFinished ||
+      _controller.value.duration.inMilliseconds > 100 &&
       _controller.value.position.compareTo(_controller.value.duration) != -1;
 
   @override
