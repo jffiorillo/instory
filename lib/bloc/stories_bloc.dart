@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:stories/bloc/block_provider.dart';
 import 'package:stories/models.dart';
 import 'package:stories/screens/widgets/stories_tray.dart';
-import 'package:stories/utils/api.dart';
+import 'package:stories/utils/cache.dart';
 
 class StoriesBloc extends BlocBase {
   List<Items> _todaysStories = [];
@@ -71,7 +71,7 @@ class StoriesBloc extends BlocBase {
       _selectTray(trayIndex);
     } else {
       view.setLoadingState(true);
-      var highlight = await Api.getSingleHighLights(trayIndex);
+      var highlight = await Cache.getCacheHighLight();
       _addStories(highlight.highLight.items);
       _selectTray(trayIndex);
       view.setLoadingState(false);

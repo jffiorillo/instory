@@ -5,6 +5,7 @@ import 'package:stories/models.dart';
 
 class NotFoundException implements Exception {
   String cause;
+
   NotFoundException(this.cause);
 }
 
@@ -32,14 +33,19 @@ class Api {
     }
   }
 
-  static Future<SingleHighLightResponse> getSingleHighLights(String highlightId) async {
+  static Future<SingleHighLightResponse> getSingleHighLights(
+      String highlightId) async {
     print("$endPoint/highlights/$highlightId");
     final response = await http.get("$endPoint/highlight/$highlightId");
     print(response);
     if (response.statusCode == 200) {
-      return SingleHighLightResponse.fromJson(json.decode(response.body), highlightId);
+      return SingleHighLightResponse.fromJson(
+          json.decode(response.body), highlightId);
     } else {
-      throw Exception("Unable to load ${response.toString()}");
+      var message =
+          "Unable to load ${response.toString()} error ${response.statusCode}"
+          " ${response.reasonPhrase}";
+      throw Exception(message);
     }
   }
 }

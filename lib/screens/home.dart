@@ -6,6 +6,7 @@ import 'package:stories/bloc/stories_bloc.dart';
 import 'package:stories/models.dart';
 import 'package:stories/screens/widgets/user_profile_widget.dart';
 import 'package:stories/utils/api.dart';
+import 'package:stories/utils/cache.dart';
 import 'package:stories/utils/colors.dart';
 import 'package:stories/wave_clipper.dart';
 
@@ -193,6 +194,7 @@ class _Home extends State<Home> with TickerProviderStateMixin {
 
   fetchData(BuildContext context) async {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
+    _controller.text = "9gag";
     String username = _controller.text;
     if (username.trim().length == 0) {
       return;
@@ -202,13 +204,13 @@ class _Home extends State<Home> with TickerProviderStateMixin {
       loading = true;
     });
     try {
-      profile = await Api.getProfile(username);
+      profile = await Cache.getCacheProfile();
       setState(() {
         loading = false;
         fetchingStories = true;
       });
 
-      _highLightsResponse = await Api.getHighLights(username);
+      _highLightsResponse = await Cache.getCacheHighLights();
       setState(() {
         fetchingStories = false;
       });
@@ -221,7 +223,7 @@ class _Home extends State<Home> with TickerProviderStateMixin {
       if (error is NotFoundException) {
         showSnackBar("No account found");
       } else {
-        showSnackBar("Unable to load data from api, please check your internet");
+        showSnackBar("$error");
       }
     }
   }

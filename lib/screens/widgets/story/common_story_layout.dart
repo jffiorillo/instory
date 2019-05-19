@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:stories/bloc/block_provider.dart';
+import 'package:stories/bloc/stories_pager_bloc.dart';
 import 'package:stories/models.dart';
 import 'package:stories/screens/widgets/story/image_story.dart';
 import 'package:stories/screens/widgets/story/video_story.dart';
@@ -16,7 +18,12 @@ class Story extends StatefulWidget {
   final int selectedItem;
   final int index;
 
-  Story(this.story, this.index, this.selectedItem);
+  Story({
+    Key key,
+    @required this.story,
+    @required this.index,
+    @required this.selectedItem,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() =>
@@ -38,6 +45,8 @@ class _Story extends State<Story> {
 
   @override
   Widget build(BuildContext context) {
+    var storiesPagerBloc = BlocProvider.of<StoriesPagerBloc>(context);
+    double screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
       bottom: true,
       top: false,
@@ -59,7 +68,26 @@ class _Story extends State<Story> {
                     Icons.file_download,
                     color: Colors.grey[800],
                   )),
-        body: _getStoryItem(),
+        body: GestureDetector(
+            onVerticalDragEnd: (DragEndDetails down) {
+              if (down.primaryVelocity > 800) {
+                Navigator.pop(context);
+              }
+            },
+            onLongPressEnd: (LongPressEndDetails details) {
+              storiesPagerBloc.onPlay();
+            },
+            onTapDown: (TapDownDetails details) {
+              storiesPagerBloc.onPause();
+            },
+            onTapUp: (TapUpDetails details) {
+              if (details.globalPosition.dx < screenWidth / 6) {
+                storiesPagerBloc.onPreviousClicked();
+              } else {
+                storiesPagerBloc.onNextClicked();
+              }
+            },
+            child: _getStoryItem()),
       ),
     );
   }
