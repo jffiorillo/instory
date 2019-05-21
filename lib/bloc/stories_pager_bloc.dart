@@ -23,8 +23,8 @@ class StoriesPagerBloc with ChangeNotifier {
   PageController get controller => _controller;
 
   set play(bool value) {
-    _isPlaying = true;
-    _play.add(true);
+    _isPlaying = value;
+    _play.add(value);
     notifyListeners();
   }
 
@@ -40,12 +40,14 @@ class StoriesPagerBloc with ChangeNotifier {
   }
 
   void onNextClicked() {
+    this.play = true;
     if (_currentPage < itemCount) {
       _controller.nextPage(duration: _kDuration, curve: _kCurve);
     }
   }
 
   void onPreviousClicked() {
+    this.play = true;
     if (_currentPage > 0) {
       _controller.previousPage(duration: _kDuration, curve: _kCurve);
     }

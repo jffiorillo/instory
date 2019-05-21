@@ -29,13 +29,7 @@ class _VideoStory extends State<VideoStory> {
   final int index;
   final int selectedItem;
   final Items story;
-  VideoPlayerController _controller;
-  bool hasFinished = false;
-  StoriesPagerBloc _storiesPagerBloc;
   StreamSubscription _play;
-  StreamSubscription _pause;
-
-  VoidCallback _listener;
 
   _VideoStory({
     Key key,
@@ -44,34 +38,36 @@ class _VideoStory extends State<VideoStory> {
     @required this.index,
   });
 
-  @override
-  void initState() {
-    _listener = () {
-      setState(() {
-        var update = (_controller.value.position.inMilliseconds /
-                    _controller.value.duration.inMilliseconds *
-                    100)
-                .roundToDouble() /
-            100;
-//        print("updateProgress video $update ${_controller.value.position.inMilliseconds} dur ${_controller.value.duration.inMilliseconds}");
-        _storiesPagerBloc.updateProgress = update;
-        if (!hasFinished && hasFinishVideo()) {
-          hasFinished = true;
-          _storiesPagerBloc.onFinished();
-        }
-      });
-    };
-    super.initState();
-    _controller = VideoPlayerController.network(this.story.videoVersions[1].url)
-      ..addListener(_listener)
-      ..initialize().then((_) {
-        if (_storiesPagerBloc.isPlaying) {
-          _playVideo();
-        }
-      });
-  }
+//  @override
+//  void initState() {
+////    _listener = () {
+////      if (this.mounted) {
+////        var update = (_controller.value.position.inMilliseconds /
+////            _controller.value.duration.inMilliseconds *
+////            100)
+////            .roundToDouble() /
+////            100;
+//////        print("updateProgress video $update ${_controller.value.position.inMilliseconds} dur ${_controller.value.duration.inMilliseconds}");
+////        _storiesPagerBloc.updateProgress = update;
+////        if (hasFinishVideo()) {
+////          _storiesPagerBloc.onFinished();
+////          _controller.removeListener(_listener);
+////        }
+////      }
+////    };
+//    super.initState();
+////    _controller = VideoPlayerController.network(this.story.videoVersions[1].url)
+////      ..addListener(_listener)
+////      ..initialize().then((_) {
+////        if (_storiesPagerBloc.isPlaying) {
+////          _playVideo();
+////        }
+////      })
+//        ;
+//  }
 
-  bool hasFinishVideo() =>
+  bool hasFinishVideo(VideoPlayerController _controller) =>
+      _controller.value.initialized &&
       _controller.value.duration.inMilliseconds > 100 &&
       _controller.value.position.compareTo(_controller.value.duration) != -1;
 
@@ -79,11 +75,9 @@ class _VideoStory extends State<VideoStory> {
   void dispose() {
     super.dispose();
     _play.cancel();
-    _pause.cancel();
-    _controller.dispose();
   }
 
-  void _playVideo() {
+  void _playVideo(VideoPlayerController _controller) {
     if (_controller.value.initialized) {
       setState(() {
         _controller.play();
@@ -91,7 +85,7 @@ class _VideoStory extends State<VideoStory> {
     }
   }
 
-  void _pauseVideo() {
+  void _pauseVideo(VideoPlayerController _controller) {
     print("Pause");
     if (_controller.value.initialized) {
       setState(() {
@@ -102,35 +96,40 @@ class _VideoStory extends State<VideoStory> {
 
   @override
   Widget build(BuildContext context) {
-    _storiesPagerBloc = Provider.of<StoriesPagerBloc>(context);
-    _play = _storiesPagerBloc.isPlayingStream
-        .listen((play) => play ? _playVideo() : _pauseVideo());
+    StoriesPagerBloc storiesPagerBloc = Provider.of<StoriesPagerBloc>(context);
     return Hero(
         tag: index == selectedItem ? this.story.id : "",
-        child: Stack(
-            fit: StackFit.expand,
-            children: _controller.value.initialized
-                ? [
-                    AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: VideoPlayer(_controller),
-                    ),
-//                    Text(
-//                      "${(_controller.value.position.inMilliseconds) / _controller.value.duration.inMilliseconds} "
-//                      "${_controller.value.position.compareTo(_controller.value.duration)}"
-//                      " ${hasFinishVideo()}",
-//                      style: TextStyle(color: Colors.redAccent, fontSize: 30.0),
-//                    ),
-                  ]
-                : [
-                    FadeInImage(
-                        fit: BoxFit.cover,
-                        fadeInDuration: Duration(milliseconds: 100),
-                        placeholder: NetworkImage(
-                            story.imageVersions2.candidates[5].url),
-                        image: NetworkImage(
-                            story.imageVersions2.candidates[2].url)),
-                    Center(child: CircularProgressIndicator())
-                  ]));
+        child: ChangeNotifierProvider(
+          builder: (context) =>
+              VideoPlayerController.network(this.story.videoVersions[1].url),
+          child: Consumer<VideoPlayerController>(builder:
+              (BuildContext context, VideoPlayerController controller, _) {
+            print("${controller.value.initialized}");
+            if (hasFinishVideo(controller)) {
+              storiesPagerBloc.onFinished();
+            }
+            _play = storiesPagerBloc.isPlayingStream.listen((play) =>
+                play ? _playVideo(controller) : _pauseVideo(controller));
+            return Stack(
+                fit: StackFit.expand,
+                children: controller.value.initialized
+                    ? [
+                        AspectRatio(
+                          aspectRatio: controller.value.aspectRatio,
+                          child: VideoPlayer(controller),
+                        ),
+                      ]
+                    : [
+                        FadeInImage(
+                            fit: BoxFit.cover,
+                            fadeInDuration: Duration(milliseconds: 100),
+                            placeholder: NetworkImage(
+                                story.imageVersions2.candidates[5].url),
+                            image: NetworkImage(
+                                story.imageVersions2.candidates[2].url)),
+                        Center(child: CircularProgressIndicator())
+                      ]);
+          }),
+        ));
   }
 }

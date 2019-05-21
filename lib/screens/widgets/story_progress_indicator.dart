@@ -78,6 +78,7 @@ class StoryProgressIndicator extends AnimatedWidget {
   double dotsSize(double screenWidth) => (2 * screenWidth / 3);
 
   Widget build(BuildContext context) {
+    print("Build new value");
     var screenWidth = MediaQuery.of(context).size.width;
     var storiesPagerBlock = Provider.of<StoriesPagerBloc>(context);
     return Padding(
