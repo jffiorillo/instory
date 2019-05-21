@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:stories/bloc/block_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:stories/bloc/stories_pager_bloc.dart';
 import 'package:stories/models.dart';
 import 'package:stories/screens/widgets/story/image_story.dart';
@@ -45,7 +45,7 @@ class _Story extends State<Story> {
 
   @override
   Widget build(BuildContext context) {
-    var storiesPagerBloc = BlocProvider.of<StoriesPagerBloc>(context);
+    var storiesPagerBloc = Provider.of<StoriesPagerBloc>(context);
     double screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
       bottom: true,
@@ -75,10 +75,10 @@ class _Story extends State<Story> {
               }
             },
             onLongPressEnd: (LongPressEndDetails details) {
-              storiesPagerBloc.onPlay();
+              storiesPagerBloc.play = true;
             },
             onTapDown: (TapDownDetails details) {
-              storiesPagerBloc.onPause();
+              storiesPagerBloc.play = false;
             },
             onTapUp: (TapUpDetails details) {
               if (details.globalPosition.dx < screenWidth / 6) {

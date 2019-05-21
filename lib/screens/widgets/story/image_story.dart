@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
-import 'package:stories/bloc/block_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:stories/bloc/stories_pager_bloc.dart';
 import 'package:stories/models.dart';
 
@@ -24,21 +26,31 @@ class ImageStory extends StatefulWidget {
 class _ImageStoryState extends State<ImageStory>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
-
   Animation<double> _animation;
+  StoriesPagerBloc _storiesPagerBloc;
+  StreamSubscription _play;
+  StreamSubscription _pause;
 
   @override
   Widget build(BuildContext context) {
-    var storiesPagerBloc = BlocProvider.of<StoriesPagerBloc>(context);
+    _storiesPagerBloc = Provider.of<StoriesPagerBloc>(context);
+    if (_storiesPagerBloc.isPlaying) {
+      _controller.forward();
+    }
+    _play = _storiesPagerBloc.isPlayingStream.listen((isPlaying) =>
+        isPlaying ? this._controller.forward() : this._controller.stop());
     this._animation
-      ..addListener(() => storiesPagerBloc.updateProgress(_animation.value))
+      ..addListener(() {
+        if (_controller.isAnimating) {
+          _storiesPagerBloc.updateProgress = _animation.value;
+        }
+      })
       ..addStatusListener((status) {
+        print("status listener $status");
         if (status == AnimationStatus.completed && _animation.value == 1.0) {
-          storiesPagerBloc.onFinished();
+          _storiesPagerBloc.onFinished();
         }
       });
-    storiesPagerBloc.pause.listen((_) => this._controller.stop());
-    storiesPagerBloc.play.listen((_) => this._controller.forward());
     return Hero(
       tag: widget.index == widget.selectedItem ? widget.story.id : "",
       child: Stack(
@@ -64,14 +76,14 @@ class _ImageStoryState extends State<ImageStory>
       vsync: this,
     );
     this._animation = Tween(begin: 0.0, end: 1.0).animate(this._controller);
-    this._controller
-      ..value = 0
-      ..forward();
+    this._controller..value = 0;
   }
 
   @override
   void dispose() {
     super.dispose();
+    _pause.cancel();
+    _play.cancel();
     this._controller.dispose();
   }
 }

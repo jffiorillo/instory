@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stories/bloc/block_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:stories/bloc/stories_pager_bloc.dart';
 import 'package:stories/utils/progress_bar.dart';
 
@@ -32,9 +32,9 @@ class StoryProgressIndicator extends AnimatedWidget {
       {double screenWidth, double progress: 0, selected: false}) {
     return Padding(
       padding: EdgeInsets.only(
-              top: 8,
-              right: _dotPaddingSize(screenWidth),
-              left: _dotPaddingSize(screenWidth)),
+          top: 8,
+          right: _dotPaddingSize(screenWidth),
+          left: _dotPaddingSize(screenWidth)),
       child: SizedBox(
           width: selected
               ? _progressIndicatorSize(screenWidth)
@@ -51,19 +51,21 @@ class StoryProgressIndicator extends AnimatedWidget {
   }
 
   Widget _buildProgressIndicator(
-      double screenWidth, int index, StoriesPagerBloc storiesPagerBlock) {
-    return (selectedItem == index)
-        ? StreamBuilder<double>(
-            stream: storiesPagerBlock.progress,
-            builder: (context, snapshot) {
-              var progress = snapshot.data ?? 0;
-              print("From StreamBuilder $snapshot");
-              return _buildInternalProgressIndicator(
-                  screenWidth: screenWidth, progress: progress, selected: true);
-            })
-        : _buildInternalProgressIndicator(
-            screenWidth: screenWidth, progress: index < selectedItem ? 1 : 0);
-  }
+          double screenWidth, int index, StoriesPagerBloc storiesPagerBlock) =>
+      (selectedItem == index)
+          ? StreamBuilder<double>(
+              initialData: 0.0,
+              stream: storiesPagerBlock.progress,
+              builder: (context, snapshot) {
+                var progress = snapshot.data ?? 0;
+                print("From StreamBuilder $snapshot");
+                return _buildInternalProgressIndicator(
+                    screenWidth: screenWidth,
+                    progress: progress,
+                    selected: true);
+              })
+          : _buildInternalProgressIndicator(
+              screenWidth: screenWidth, progress: index < selectedItem ? 1 : 0);
 
   double _progressIndicatorSize(double screenWidth) => screenWidth / 3;
 
@@ -77,7 +79,7 @@ class StoryProgressIndicator extends AnimatedWidget {
 
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
-    var storiesPagerBlock = BlocProvider.of<StoriesPagerBloc>(context);
+    var storiesPagerBlock = Provider.of<StoriesPagerBloc>(context);
     return Padding(
         padding: const EdgeInsets.only(left: 4.0),
         child: SizedBox(

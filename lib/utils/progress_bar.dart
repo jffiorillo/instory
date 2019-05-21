@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-const NORMAL_ANIMATION = 600;
+const NORMAL_ANIMATION = 400;
 
 class ProgressBar extends StatefulWidget {
   final Color backgroundColor;
@@ -71,7 +71,7 @@ class _ProgressBarState extends State<ProgressBar>
     );
     this.curve = CurvedAnimation(
       parent: this._controller,
-      curve: Curves.easeInOut,
+      curve: Curves.linear,
     );
     this.valueTween = Tween<double>(
       begin: 0,

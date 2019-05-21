@@ -1,31 +1,38 @@
 import 'dart:async';
 
-import 'package:stories/bloc/block_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
-class StoriesPagerBloc extends BlocBase {
-  final StoriesPagerUi ui;
+const _kDuration = const Duration(milliseconds: 300);
+const _kCurve = Curves.ease;
+
+class StoriesPagerBloc with ChangeNotifier {
   final int itemCount;
-
-  final StreamController<void> _play = StreamController.broadcast();
-  final StreamController<void> _stop = StreamController.broadcast();
+  int selectedItem;
+  bool _isPlaying = true;
+  final StreamController<bool> _play = StreamController.broadcast();
   final StreamController<double> _progress = StreamController.broadcast();
+  final PageController _controller;
 
-  Stream<void> get play => _play.stream;
-  Stream<void> get pause => _stop.stream;
+  StoriesPagerBloc(this.itemCount, this.selectedItem)
+      : _controller = PageController(
+            initialPage: selectedItem, keepPage: true, viewportFraction: 1);
+
+  Stream<bool> get isPlayingStream => _play.stream;
+
+  PageController get controller => _controller;
+
+  set play(bool value) {
+    _isPlaying = true;
+    _play.add(true);
+    notifyListeners();
+  }
+
   Stream<double> get progress => _progress.stream;
 
-  StoriesPagerBloc(this.ui, this.itemCount);
-
-  void updateProgress(double update){
+  set updateProgress(double update) {
     _progress.add(update);
-  }
-
-  void onPlay(){
-    _play.add(null);
-  }
-
-  void onPause(){
-    _stop.add(null);
+    notifyListeners();
   }
 
   void onFinished() {
@@ -33,29 +40,28 @@ class StoriesPagerBloc extends BlocBase {
   }
 
   void onNextClicked() {
-    if (ui.getCurrentPage() < itemCount) {
-      ui.goToNextPage();
+    if (_currentPage < itemCount) {
+      _controller.nextPage(duration: _kDuration, curve: _kCurve);
     }
   }
 
   void onPreviousClicked() {
-    if (ui.getCurrentPage() > 0) {
-      ui.goToPreviousPage();
+    if (_currentPage > 0) {
+      _controller.previousPage(duration: _kDuration, curve: _kCurve);
     }
   }
 
+  int get _currentPage => this._controller.page.round();
+
+  bool get isPlaying => _isPlaying;
+
+  bool get isPause => !_isPlaying;
+
   @override
   void dispose() {
+    super.dispose();
     _play.close();
-    _stop.close();
     _progress.close();
+    _controller.dispose();
   }
-}
-
-abstract class StoriesPagerUi {
-  int getCurrentPage();
-
-  void goToNextPage();
-
-  void goToPreviousPage();
 }
